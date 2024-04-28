@@ -1,4 +1,3 @@
-```markdown
 # Sistema CLI de Teste de Carga em Go
 
 ## Objetivo
