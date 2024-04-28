@@ -48,4 +48,3 @@ docker run <sua imagem docker> --url=http://google.com --requests=1000 --concurr
 ## Conclusão
 
 Este sistema CLI de teste de carga em Go é uma ferramenta útil para avaliar a capacidade de resposta de serviços web sob diferentes níveis de carga, fornecendo insights valiosos sobre a performance e a estabilidade do serviço testado.
-```
