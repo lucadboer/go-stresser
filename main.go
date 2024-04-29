@@ -24,50 +24,44 @@ func main() {
 	statusCodes := make(map[int]int)
 	var mu sync.Mutex
 
-	doRequest := func(wg *sync.WaitGroup) {
-		defer wg.Done()
+	startTime := time.Now()
 
-		start := time.Now()
+	doRequest := func() {
 		resp, err := http.Get(*url)
-		duration := time.Since(start)
-
-		mu.Lock()
-		defer mu.Unlock()
-
-		totalDuration += duration
-
 		if err == nil {
+			mu.Lock()
 			statusCodes[resp.StatusCode]++
 			if resp.StatusCode == 200 {
 				successRequests++
 			}
+			mu.Unlock()
 			resp.Body.Close()
 		} else {
+			mu.Lock()
 			statusCodes[0]++
+			mu.Unlock()
 		}
 	}
 
 	var wg sync.WaitGroup
-
-	requestsPerGoroutine := *requests / *concurrency
-
-	extraRequests := *requests % *concurrency
+	wg.Add(*concurrency)
 
 	for i := 0; i < *concurrency; i++ {
-		wg.Add(1)
-		go func(i int) {
+		go func() {
 			defer wg.Done()
-			numRequests := requestsPerGoroutine
-			if i < extraRequests {
-				numRequests++
+			for j := 0; j < *requests / *concurrency; j++ {
+				doRequest()
 			}
-			for j := 0; j < numRequests; j++ {
-				doRequest(&wg)
-			}
-		}(i)
+		}()
+	}
+
+	for i := 0; i < *requests%*concurrency; i++ {
+		doRequest()
 	}
 
 	wg.Wait()
+
+	totalDuration = time.Since(startTime)
 
 	fmt.Printf("Tempo total gasto: %v\n", totalDuration)
 	fmt.Printf("Quantidade total de requests realizados: %d\n", *requests)
