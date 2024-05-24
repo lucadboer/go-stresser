@@ -1,12 +1,12 @@
 FROM golang:alpine AS builder
 WORKDIR /app
 COPY . .
-RUN go build -o cli-stress-test .
+RUN go build -o loadtester .
 
 FROM alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/cli-stress-test .
+COPY --from=builder /app/loadtester .
 
-ENTRYPOINT ["./cli-stress-test"]
+ENTRYPOINT ["./loadtester"]
